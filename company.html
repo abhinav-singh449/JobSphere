@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobSphere | For Companies</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* ── Application Card ── */
+        .app-card {
+            background: white; border-radius: 16px; padding: 20px 24px;
+            border: 1px solid #e2e8f0; margin-bottom: 16px;
+            transition: box-shadow 0.2s;
+        }
+        .app-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
+        .app-card-top { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+        .app-avatar {
+            width: 48px; height: 48px; border-radius: 50%;
+            object-fit: cover; flex-shrink: 0;
+            border: 2px solid #e2e8f0;
+        }
+        .app-info { flex: 1; }
+        .app-info h4 { font-size: 1rem; margin-bottom: 3px; }
+        .app-info p { color: var(--gray); font-size: 0.85rem; }
+        .app-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 5px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;
+        }
+        .status-badge.pending  { background: rgba(251,191,36,0.15); color: #d97706; }
+        .status-badge.accepted { background: rgba(16,185,129,0.15);  color: #059669; }
+        .status-badge.rejected { background: rgba(239,68,68,0.15);   color: #dc2626; }
+
+        .btn-accept {
+            padding: 8px 18px; border-radius: 20px; border: none; cursor: pointer;
+            background: rgba(16,185,129,0.1); color: #059669;
+            font-weight: 600; font-size: 0.85rem; font-family: inherit;
+            transition: all 0.2s;
+        }
+        .btn-accept:hover { background: #059669; color: white; }
+        .btn-reject {
+            padding: 8px 18px; border-radius: 20px; border: none; cursor: pointer;
+            background: rgba(239,68,68,0.1); color: #dc2626;
+            font-weight: 600; font-size: 0.85rem; font-family: inherit;
+            transition: all 0.2s;
+        }
+        .btn-reject:hover { background: #dc2626; color: white; }
+
+        /* ── Chat Box ── */
+        .chat-modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+            display: flex; align-items: flex-end; justify-content: flex-end;
+            padding: 24px; z-index: 10000;
+        }
+        .chat-box {
+            width: 380px; height: 520px; background: white;
+            border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+        .chat-header {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            padding: 16px 20px; display: flex; align-items: center;
+            gap: 12px; color: white;
+        }
+        .chat-header img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.4); }
+        .chat-header h4 { font-size: 1rem; margin-bottom: 2px; }
+        .chat-header small { opacity: 0.8; font-size: 0.75rem; }
+        .chat-header .close-chat { margin-left: auto; background: none; border: none; color: white; cursor: pointer; font-size: 1.4rem; }
+        .chat-messages {
+            flex: 1; overflow-y: auto; padding: 16px;
+            display: flex; flex-direction: column; gap: 10px;
+            background: #f8fafc;
+        }
+        .chat-msg {
+            max-width: 75%; padding: 10px 14px; border-radius: 16px;
+            font-size: 0.9rem; line-height: 1.4; word-break: break-word;
+        }
+        .chat-msg.sent {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white; border-bottom-right-radius: 4px;
+        }
+        .chat-msg.received {
+            align-self: flex-start; background: white; color: #1e293b;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-bottom-left-radius: 4px;
+        }
+        .chat-msg .msg-time { font-size: 0.7rem; opacity: 0.6; margin-top: 4px; text-align: right; }
+        .chat-msg .msg-sender { font-size: 0.7rem; font-weight: 600; margin-bottom: 2px; opacity: 0.7; }
+        .chat-msg.sent .msg-sender { text-align: right; }
+        .chat-msg.received .msg-sender { text-align: left; }
+        .chat-input-row {
+            padding: 12px 16px; background: white; border-top: 1px solid #e2e8f0;
+            display: flex; gap: 10px; align-items: center;
+        }
+        .chat-input-row input {
+            flex: 1; padding: 10px 14px; border: 1px solid #e2e8f0;
+            border-radius: 20px; font-size: 0.9rem; outline: none; font-family: inherit;
+        }
+        .chat-input-row input:focus { border-color: #6366f1; }
+        .chat-send-btn {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none; color: white; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; flex-shrink: 0;
+        }
+
+        /* ── Job posted card ── */
+        .posted-job-card {
+            background: white; border-radius: 16px; padding: 20px 24px;
+            border: 1px solid #e2e8f0; margin-bottom: 16px;
+            display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+        }
+        .posted-job-card .job-icon {
+            width: 50px; height: 50px; background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            color: #7c3aed; font-size: 1.4rem; flex-shrink: 0;
+        }
+        .posted-job-card .pj-info { flex: 1; }
+        .posted-job-card .pj-info h4 { font-size: 1rem; margin-bottom: 4px; }
+        .posted-job-card .pj-info p { color: var(--gray); font-size: 0.85rem; }
+        .applicant-count {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 14px; border-radius: 20px;
+            background: rgba(99,102,241,0.1); color: var(--primary);
+            font-size: 0.85rem; font-weight: 600;
+        }
+
+        .chat-open-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 16px; border-radius: 20px;
+            background: rgba(99,102,241,0.1); color: var(--primary);
+            border: none; cursor: pointer; font-size: 0.85rem; font-weight: 600;
+            font-family: inherit; transition: all 0.2s;
+        }
+        .chat-open-btn:hover { background: rgba(99,102,241,0.2); }
+
+        /* cover letter expand */
+        .cover-letter-text {
+            margin-top: 12px; padding: 12px 16px;
+            background: #f8fafc; border-radius: 10px;
+            font-size: 0.9rem; color: var(--gray); line-height: 1.6;
+            border-left: 3px solid var(--primary);
+        }
+
+        /* ── Network Tab Buttons ── */
+        .network-tab {
+            padding: 10px 20px; border-radius: 20px; border: 1px solid #e2e8f0;
+            background: white; color: var(--gray); font-size: 0.85rem; font-weight: 600;
+            cursor: pointer; font-family: inherit; transition: all 0.2s;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .network-tab:hover { border-color: var(--primary); color: var(--primary); }
+        .network-tab.active {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white; border-color: transparent;
+        }
+        .tab-count {
+            background: rgba(0,0,0,0.08); padding: 2px 8px;
+            border-radius: 10px; font-size: 0.75rem;
+        }
+        .network-tab.active .tab-count { background: rgba(255,255,255,0.3); }
+
+        /* ── Network User Cards ── */
+        .network-card {
+            background: white; border-radius: 16px; padding: 20px 24px;
+            border: 1px solid #e2e8f0; margin-bottom: 16px;
+            display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+            transition: box-shadow 0.2s;
+        }
+        .network-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
+        .network-card .nc-avatar {
+            width: 50px; height: 50px; border-radius: 50%;
+            object-fit: cover; border: 2px solid #e2e8f0; flex-shrink: 0;
+        }
+        .network-card .nc-info { flex: 1; }
+        .network-card .nc-info h4 { font-size: 1rem; margin-bottom: 4px; }
+        .network-card .nc-info p { color: var(--gray); font-size: 0.85rem; }
+        .network-card .nc-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+        /* ── Connection Buttons ── */
+        .btn-connect {
+            padding: 8px 18px; border-radius: 20px; border: none; cursor: pointer;
+            background: rgba(99,102,241,0.1); color: var(--primary);
+            font-weight: 600; font-size: 0.85rem; font-family: inherit;
+            transition: all 0.2s;
+        }
+        .btn-connect:hover { background: var(--primary); color: white; transform: translateY(-1px); }
+        .btn-pending-out {
+            padding: 8px 18px; border-radius: 20px; border: 1px solid #e2e8f0;
+            background: white; color: var(--gray);
+            font-weight: 600; font-size: 0.85rem; font-family: inherit; cursor: default;
+        }
+        .btn-view-profile {
+            padding: 8px 18px; border-radius: 20px; border: 1px solid #e2e8f0;
+            background: white; color: var(--dark);
+            font-weight: 600; font-size: 0.85rem; font-family: inherit;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .btn-view-profile:hover { border-color: var(--primary); color: var(--primary); }
+
+        /* ── Profile View Modal ── */
+        .profile-header-view {
+            text-align: center; padding: 20px 0; margin-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .profile-header-view img {
+            width: 80px; height: 80px; border-radius: 50%;
+            object-fit: cover; border: 3px solid var(--primary); margin-bottom: 12px;
+        }
+        .profile-header-view h3 { font-size: 1.3rem; margin-bottom: 4px; }
+        .profile-header-view p { color: var(--gray); font-size: 0.9rem; }
+        .profile-media-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px; margin-top: 20px;
+        }
+        .profile-media-grid .pm-item {
+            border-radius: 12px; overflow: hidden; cursor: pointer;
+            border: 1px solid #e2e8f0; transition: transform 0.2s;
+        }
+        .profile-media-grid .pm-item:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .profile-media-grid .pm-item img,
+        .profile-media-grid .pm-item video { width: 100%; height: 140px; object-fit: cover; display: block; }
+        .profile-media-grid .pm-item .pm-caption {
+            padding: 8px 10px; font-size: 0.8rem; color: var(--gray);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+    </style>
+</head>
+<body data-page="company">
+
+    <!-- ── NAVBAR ── -->
+    <header id="navbar">
+        <div class="container nav-inner">
+            <a href="index.html" class="logo">
+                <i class="ph-fill ph-hexagon" style="color:var(--primary);"></i>
+                Job<span>Sphere</span>
+            </a>
+            <nav class="nav-menu">
+                <a href="#posted-jobs">My Jobs</a>
+                <a href="#applications">Applications</a>
+                <a href="#media">Media</a>
+                <a href="#network">Network</a>
+            </nav>
+            <div class="auth-buttons" style="display:flex;gap:12px;align-items:center;">
+                <button class="switch-role-btn" onclick="switchRole()">
+                    <i class="ph ph-arrows-left-right"></i> Switch Role
+                </button>
+                <button class="btn btn-outline login-btn" onclick="openModal('authModal')">Sign In</button>
+                <button class="btn btn-gradient" onclick="openPostJobModal()">
+                    <i class="ph ph-plus"></i> Post Job
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ── HERO ── -->
+    <section class="hero">
+        <div class="container hero-grid">
+            <div class="hero-content" data-aos="fade-right" data-aos-duration="1000">
+                <div style="display:inline-flex;align-items:center;gap:8px;padding:8px 16px;background:rgba(167,139,250,0.1);color:#7c3aed;border-radius:20px;font-size:0.85rem;font-weight:600;margin-bottom:1.5rem;">
+                    <i class="ph ph-buildings"></i> Trusted by 14,000+ Companies
+                </div>
+                <h1>Find the best talent for your <span style="background:var(--gradient-primary);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">team</span></h1>
+                <p>Post jobs in minutes and connect with thousands of qualified candidates through our intelligent matching system.</p>
+                <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:2rem;">
+                    <button class="btn btn-gradient" style="padding:16px 32px;font-size:1rem;" onclick="openPostJobModal()">
+                        <i class="ph ph-plus" style="margin-right:8px;"></i>Post a Job Now
+                    </button>
+                    <button class="btn btn-outline" style="padding:16px 32px;font-size:1rem;" onclick="openModal('authModal')">
+                        Sign In to Dashboard
+                    </button>
+                </div>
+            </div>
+            <div class="hero-visual" data-aos="fade-left" data-aos-duration="1000">
+                <div class="floating-card">
+                    <div style="width:50px;height:50px;background:linear-gradient(135deg,#e0e7ff,#c7d2fe);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--primary);"><i class="ph-fill ph-users-three" style="font-size:1.5rem;"></i></div>
+                    <div><h4 style="font-size:0.95rem;margin-bottom:2px;">12 Applicants</h4><span style="font-size:0.8rem;color:var(--gray);">Senior Designer Role</span></div>
+                </div>
+                <div class="floating-card">
+                    <div style="width:50px;height:50px;background:linear-gradient(135deg,#d1fae5,#a7f3d0);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#10b981;"><i class="ph-fill ph-check-circle" style="font-size:1.5rem;"></i></div>
+                    <div><h4 style="font-size:0.95rem;margin-bottom:2px;">Position Filled!</h4><span style="font-size:0.8rem;color:var(--gray);">React Developer</span></div>
+                </div>
+                <div class="floating-card" style="background:var(--dark);color:white;">
+                    <i class="ph-fill ph-lightning" style="color:#fbbf24;"></i>
+                    <span style="font-weight:600;">Avg 48hr to hire</span>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="stats-bar" data-aos="fade-up" data-aos-delay="200">
+                <div class="stats-grid">
+                    <div class="stat-item"><h3>14k+</h3><p>Companies</p></div>
+                    <div class="stat-item"><h3>50k+</h3><p>Job Seekers</p></div>
+                    <div class="stat-item"><h3>48h</h3><p>Avg Time to Hire</p></div>
+                    <div class="stat-item"><h3>98%</h3><p>Satisfaction</p></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── MY POSTED JOBS ── -->
+    <section id="posted-jobs" style="padding:80px 0;background:var(--light);">
+        <div class="container">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:40px;flex-wrap:wrap;gap:16px;" data-aos="fade-up">
+                <div>
+                    <h2 style="font-size:2rem;margin-bottom:6px;">Your Posted Jobs</h2>
+                    <p style="color:var(--gray);">Manage your active listings</p>
+                </div>
+                <button class="btn btn-gradient" onclick="openPostJobModal()" style="padding:14px 28px;">
+                    <i class="ph ph-plus" style="margin-right:8px;"></i>Post New Job
+                </button>
+            </div>
+            <div id="company-jobs-container">
+                <div style="text-align:center;padding:60px 20px;color:var(--gray);">
+                    <i class="ph ph-briefcase" style="font-size:4rem;margin-bottom:20px;display:block;opacity:0.4;"></i>
+                    <h3 style="color:var(--dark);margin-bottom:10px;">No Jobs Posted Yet</h3>
+                    <p style="margin-bottom:20px;">Sign in and post your first job to start finding talent</p>
+                    <button class="btn btn-gradient" onclick="openPostJobModal()">Post Your First Job</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── APPLICATIONS ── -->
+    <section id="applications" style="padding:80px 0;background:white;">
+        <div class="container">
+            <div data-aos="fade-up" style="margin-bottom:40px;">
+                <h2 style="font-size:2rem;margin-bottom:6px;">Applications Received</h2>
+                <p style="color:var(--gray);">Review and respond to candidates</p>
+            </div>
+            <div id="company-applications-container">
+                <div style="text-align:center;padding:60px 20px;color:var(--gray);">
+                    <i class="ph ph-file-text" style="font-size:4rem;margin-bottom:20px;display:block;opacity:0.4;"></i>
+                    <p>Sign in to view applications for your jobs</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── MEDIA ── -->
+    <section id="media" style="padding:80px 0;background:var(--light);">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up" style="text-align:center;margin-bottom:40px;">
+                <h2>Media Gallery</h2>
+                <p style="color:var(--gray);">Photos and videos from our community</p>
+            </div>
+            <div id="media-gallery" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;">
+                <p style="color:var(--gray);text-align:center;grid-column:1/-1;">No media uploaded yet.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── NETWORK ── -->
+    <section id="network" style="padding:80px 0;background:white;">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up" style="text-align:center;margin-bottom:40px;">
+                <h2>My Network</h2>
+                <p style="color:var(--gray);">Connect with professionals and grow your network</p>
+            </div>
+            <div style="max-width:600px;margin:0 auto 30px;">
+                <div class="search-box" style="max-width:100%;">
+                    <i class="ph ph-magnifying-glass" style="font-size:1.2rem;color:var(--gray);margin-left:20px;"></i>
+                    <input type="text" class="search-input" id="networkSearch" placeholder="Search people by name...">
+                    <button class="search-btn" onclick="searchUsers()"><i class="ph ph-arrow-right"></i></button>
+                </div>
+            </div>
+            <div id="network-tabs" style="display:flex;gap:10px;margin-bottom:30px;justify-content:center;flex-wrap:wrap;">
+                <button class="network-tab active" data-tab="search-results" onclick="switchNetworkTab('search-results')">
+                    <i class="ph ph-magnifying-glass"></i> Search
+                </button>
+                <button class="network-tab" data-tab="my-connections" onclick="switchNetworkTab('my-connections')">
+                    <i class="ph ph-users"></i> Connections <span id="connections-count" class="tab-count"></span>
+                </button>
+                <button class="network-tab" data-tab="pending-requests" onclick="switchNetworkTab('pending-requests')">
+                    <i class="ph ph-clock"></i> Requests <span id="requests-count" class="tab-count"></span>
+                </button>
+                <button class="network-tab" data-tab="sent-requests" onclick="switchNetworkTab('sent-requests')">
+                    <i class="ph ph-paper-plane-tilt"></i> Sent
+                </button>
+            </div>
+            <div id="search-results" class="network-panel">
+                <div style="text-align:center;padding:60px 20px;color:var(--gray);">
+                    <i class="ph ph-users-three" style="font-size:4rem;margin-bottom:20px;display:block;opacity:0.4;"></i>
+                    <p>Search for people to connect with</p>
+                </div>
+            </div>
+            <div id="my-connections" class="network-panel" style="display:none;">
+                <div style="text-align:center;padding:60px 20px;color:var(--gray);">
+                    <i class="ph ph-user-circle" style="font-size:4rem;margin-bottom:20px;display:block;opacity:0.4;"></i>
+                    <p>Sign in to see your connections</p>
+                </div>
+            </div>
+            <div id="pending-requests" class="network-panel" style="display:none;">
+                <div style="text-align:center;padding:60px 20px;color:var(--gray);">
+                    <i class="ph ph-clock" style="font-size:4rem;margin-bottom:20px;display:block;opacity:0.4;"></i>
+                    <p>Sign in to see pending requests</p>
+                </div>
+            </div>
+            <div id="sent-requests" class="network-panel" style="display:none;">
+                <div style="text-align:center;padding:60px 20px;color:var(--gray);">
+                    <i class="ph ph-paper-plane-tilt" style="font-size:4rem;margin-bottom:20px;display:block;opacity:0.4;"></i>
+                    <p>Sign in to see sent requests</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── FOOTER ── -->
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="logo" style="margin-bottom:25px;color:white;"><i class="ph-fill ph-hexagon"></i> Job<span>Sphere</span></div>
+                    <p style="color:#94a3b8;line-height:1.7;">The future of recruitment is here.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Employers</h4>
+                    <ul>
+                        <li><a href="#posted-jobs">My Jobs</a></li>
+                        <li><a href="#applications">Applications</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Looking for a job?</h4>
+                    <ul><li><a href="user.html">Switch to Job Seeker</a></li></ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <ul style="color:#94a3b8;"><li><i class="ph ph-envelope-simple" style="margin-right:8px;"></i>hello@jobsphere.com</li></ul>
+                </div>
+            </div>
+            <div class="copyright">&copy; 2024 JobSphere Inc. All rights reserved.</div>
+        </div>
+    </footer>
+
+    <!-- ══════════ MODALS ══════════ -->
+
+    <!-- AUTH MODAL -->
+    <div class="modal-wrap" id="authModal">
+        <div class="modal-box" style="max-width:450px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                <h3 id="authModalTitle" style="font-size:1.6rem;">Sign In</h3>
+                <button onclick="closeModal('authModal')" style="background:none;border:none;font-size:1.8rem;color:var(--gray);cursor:pointer;">&times;</button>
+            </div>
+            <div style="display:flex;gap:10px;margin-bottom:25px;background:var(--light-gray);padding:6px;border-radius:50px;">
+                <button id="signinToggle" class="auth-toggle active" onclick="toggleAuthMode('signin')" style="flex:1;padding:12px;border:none;background:transparent;border-radius:50px;font-weight:600;cursor:pointer;">Sign In</button>
+                <button id="signupToggle" class="auth-toggle" onclick="toggleAuthMode('signup')" style="flex:1;padding:12px;border:none;background:transparent;border-radius:50px;font-weight:600;cursor:pointer;">Sign Up</button>
+            </div>
+            <form id="signinForm" onsubmit="handleSignIn(event)">
+                <div style="margin-bottom:20px;"><label style="display:block;margin-bottom:8px;color:var(--gray);font-size:0.9rem;">Email</label><input type="email" id="signinEmail" placeholder="you@example.com" required style="padding:14px;border:1px solid rgba(0,0,0,0.1);border-radius:12px;width:100%;font-size:1rem;"></div>
+                <div style="margin-bottom:10px;"><label style="display:block;margin-bottom:8px;color:var(--gray);font-size:0.9rem;">Password</label><input type="password" id="signinPassword" placeholder="••••••••" required style="padding:14px;border:1px solid rgba(0,0,0,0.1);border-radius:12px;width:100%;font-size:1rem;"></div>
+                <div style="text-align:right;margin-bottom:20px;"><a href="#" onclick="showForgotPassword()" style="color:var(--primary);font-size:0.9rem;text-decoration:none;">Forgot Password?</a></div>
+                <button type="submit" class="btn btn-gradient" style="width:100%;padding:16px;margin-bottom:15px;">Sign In</button>
+            </form>
+            <form id="signupForm" onsubmit="handleSignUp(event)" style="display:none;">
+                <div style="margin-bottom:20px;"><label style="display:block;margin-bottom:8px;color:var(--gray);font-size:0.9rem;">Full Name</label><input type="text" id="signupName" placeholder="Company Name" required style="padding:14px;border:1px solid rgba(0,0,0,0.1);border-radius:12px;width:100%;font-size:1rem;"></div>
+                <div style="margin-bottom:20px;"><label style="display:block;margin-bottom:8px;color:var(--gray);font-size:0.9rem;">Email</label><input type="email" id="signupEmail" placeholder="company@example.com" required style="padding:14px;border:1px solid rgba(0,0,0,0.1);border-radius:12px;width:100%;font-size:1rem;"></div>
+                <div style="margin-bottom:10px;"><label style="display:block;margin-bottom:8px;color:var(--gray);font-size:0.9rem;">Password</label><input type="password" id="signupPassword" placeholder="••••••••" required style="padding:14px;border:1px solid rgba(0,0,0,0.1);border-radius:12px;width:100%;font-size:1rem;"></div>
+                <button type="submit" class="btn btn-gradient" style="width:100%;padding:16px;margin-bottom:15px;">Create Account</button>
+            </form>
+            <div style="display:flex;align-items:center;gap:15px;margin:20px 0;"><div style="flex:1;height:1px;background:rgba(0,0,0,0.1);"></div><span style="color:var(--gray);font-size:0.9rem;">OR</span><div style="flex:1;height:1px;background:rgba(0,0,0,0.1);"></div></div>
+            <button onclick="googleSignIn()" class="btn google-btn" style="width:100%;padding:16px;background:white;border:2px solid #e2e8f0;color:#1e293b;display:flex;align-items:center;justify-content:center;gap:12px;">
+                <svg width="24" height="24" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                Continue with Google
+            </button>
+        </div>
+    </div>
+
+    <!-- FORGOT PASSWORD -->
+    <div class="modal-wrap" id="forgotPasswordModal">
+        <div class="modal-box" style="max-width:400px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;">
+                <h3 style="font-size:1.5rem;">Reset Password</h3>
+                <button onclick="closeModal('forgotPasswordModal')" style="background:none;border:none;font-size:1.8rem;color:var(--gray);cursor:pointer;">&times;</button>
+            </div>
+            <form onsubmit="handleForgotPassword(event)">
+                <div style="margin-bottom:20px;"><label style="display:block;margin-bottom:8px;color:var(--gray);font-size:0.9rem;">Email</label><input type="email" id="forgotEmail" placeholder="you@example.com" required style="padding:14px;border:1px solid rgba(0,0,0,0.1);border-radius:12px;width:100%;font-size:1rem;"></div>
+                <button type="submit" class="btn btn-gradient" style="width:100%;padding:16px;">Send Reset Link</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- POST JOB MODAL -->
+    <div class="modal-wrap" id="postJobModal">
+        <div class="modal-box">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;">
+                <h3 style="font-size:1.5rem;">Post a New Job</h3>
+                <button onclick="closeModal('postJobModal')" style="background:none;border:none;font-size:1.8rem;color:var(--gray);cursor:pointer;">&times;</button>
+            </div>
+            <form onsubmit="handleJobPost(event)" style="display:grid;gap:20px;">
+                <div><label style="display:block;margin-bottom:8px;color:var(--gray);font-size:0.9rem;">Job Title</label><input type="text" id="jobTitle" placeholder="e.g. Senior Product Designer" required style="padding:14px;border:1px solid rgba(0,0,0,0.1);border-radius:12px;width:100%;font-size:1rem;"></div>
+                <div><label style="display:block;margin-bottom:8px;color:var(--gray);font-size:0.9rem;">Company Name</label><input type="text" id="jobCompany" placeholder="Your company name" required style="padding:14px;border:1px solid rgba(0,0,0,0.1);border-radius:12px;width:100%;font-size:1rem;"></div>
+                <div><label style="display:block;margin-bottom:8px;color:var(--gray);font-size:0.9rem;">Location</label><input type="text" id="jobLocation" placeholder="e.g. Remote / New York, USA" required style="padding:14px;border:1px solid rgba(0,0,0,0.1);border-radius:12px;width:100%;font-size:1rem;"></div>
+                <div><label style="display:block;margin-bottom:8px;color:var(--gray);font-size:0.9rem;">Salary Range</label><input type="text" id="jobSalary" placeholder="e.g. $100k - $130k" required style="padding:14px;border:1px solid rgba(0,0,0,0.1);border-radius:12px;width:100%;font-size:1rem;"></div>
+                <div><label style="display:block;margin-bottom:8px;color:var(--gray);font-size:0.9rem;">Job Description</label><textarea rows="4" id="jobDescription" placeholder="Describe the role and requirements..." required style="padding:14px;border:1px solid rgba(0,0,0,0.1);border-radius:12px;width:100%;font-size:1rem;resize:vertical;"></textarea></div>
+                <button type="submit" class="btn btn-gradient" style="width:100%;padding:16px;">Post Job Now</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- UPLOAD MEDIA -->
+    <div class="modal-wrap" id="uploadModal">
+        <div class="modal-box">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;">
+                <h3 style="font-size:1.5rem;">Upload Media</h3>
+                <button onclick="closeModal('uploadModal')" style="background:none;border:none;font-size:1.8rem;color:var(--gray);cursor:pointer;">&times;</button>
+            </div>
+            <form onsubmit="handleMediaUpload(event)" style="display:grid;gap:20px;">
+                <div><input type="file" id="mediaFile" accept="image/*,video/*" required style="padding:14px;border:1px solid rgba(0,0,0,0.1);border-radius:12px;width:100%;font-size:1rem;"></div>
+                <div><input type="text" id="mediaCaption" placeholder="Caption (optional)" style="padding:14px;border:1px solid rgba(0,0,0,0.1);border-radius:12px;width:100%;font-size:1rem;"></div>
+                <button type="submit" class="btn btn-gradient" style="width:100%;padding:16px;">Upload</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- VIEW PROFILE MODAL -->
+    <div class="modal-wrap" id="viewProfileModal" style="display:none;">
+        <div class="modal-box" style="max-width:700px;max-height:85vh;overflow-y:auto;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                <h3 style="font-size:1.5rem;">Profile</h3>
+                <button onclick="closeModal('viewProfileModal')" style="background:none;border:none;font-size:1.8rem;color:var(--gray);cursor:pointer;">&times;</button>
+            </div>
+            <div id="profile-view-content">
+                <p style="text-align:center;color:var(--gray);padding:40px;">Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHAT BOX (injected by JS) -->
+    <div id="chat-container"></div>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script type="module" src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobSphere | Welcome</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 36px;
+            padding: 20px;
+        }
+        .role-logo {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .role-logo span { color: #a78bfa; }
+        .role-heading { text-align: center; }
+        .role-heading h2 { color: white; font-size: 2rem; font-weight: 700; margin-bottom: 10px; }
+        .role-heading p { color: #94a3b8; font-size: 1rem; }
+        .role-cards { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; }
+        .role-card {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
+            padding: 44px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 250px;
+            color: white;
+        }
+        .role-card:hover {
+            background: rgba(99,102,241,0.2);
+            border-color: #6366f1;
+            transform: translateY(-8px);
+            box-shadow: 0 24px 60px rgba(99,102,241,0.3);
+        }
+        .role-card i { font-size: 3.5rem; margin-bottom: 18px; display: block; }
+        .role-card h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 8px; }
+        .role-card p { font-size: 0.85rem; color: #94a3b8; }
+        .user-card i { color: #60a5fa; }
+        .company-card i { color: #a78bfa; }
+    </style>
+</head>
+<body>
+    <div class="role-logo">
+        <i class="ph-fill ph-hexagon" style="color:#a78bfa;"></i>
+        Job<span>Sphere</span>
+    </div>
+    <div class="role-heading">
+        <h2>Welcome! How are you joining?</h2>
+        <p>Choose your account type to get started</p>
+    </div>
+    <div class="role-cards">
+        <div class="role-card user-card" onclick="goTo('user')">
+            <i class="ph-fill ph-user-circle"></i>
+            <h3>I'm a Job Seeker</h3>
+            <p>Find and apply for your dream job</p>
+        </div>
+        <div class="role-card company-card" onclick="goTo('company')">
+            <i class="ph-fill ph-buildings"></i>
+            <h3>I'm a Company</h3>
+            <p>Post jobs and find top talent</p>
+        </div>
+    </div>
+    <script>
+        function goTo(role) {
+            localStorage.setItem('jobsphere_role', role);
+            window.location.href = role === 'user' ? 'user.html' : 'company.html';
+        }
+    </script>
+</body>
+</html>
