@@ -17,9 +17,15 @@ JobSphere is a job portal web application that connects job seekers with compani
 * JavaScript
 * Firebase (Authentication & Firestore)
 
-## 👥 Project Type
+## 👨‍💻 My Contribution
 
-Team project (4 members)
+* Designed and developed the frontend UI
+* Built responsive layouts and components
+* Worked on user experience and overall design consistency
+
+## 👥 Team Project
+
+This project was developed as a team of 4 members, where backend, database integration, and testing were handled collaboratively.
 
 ## 📌 Status
 
@@ -27,4 +33,10 @@ Currently running locally. Deployment coming soon.
 
 ## 📷 Demo
 
-Check out the demo video on my LinkedIn post.
+Demo video is available in my LinkedIn post.
+
+## 🚀 Future Improvements
+
+* Deploy project online
+* Improve UI interactions and animations
+* Add more advanced filtering for jobs
